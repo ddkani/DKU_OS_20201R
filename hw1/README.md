@@ -3,6 +3,9 @@ HW1: Simple MyShell
 
 Operating Systems & Adv. Mobile project HW1: simple Shell (SiSH)
 
+**Period** : 2020. 03. 30 ~ 2020. 04. 13
+**Submission** : 2020. 04. 13
+
 ### Build project
 `make` to build project
 ```

@@ -1,11 +1,9 @@
-word_count : main.o functions.o
-	gcc -o ./word_count main.o functions.o
+exec : myfile.o
+	gcc -o ./exec myfile.c
 
-main.o : functions.h main.c
-	gcc -c main.c
+myfile.o : myfile.c
+	gcc -c myfile.c
 
-functions.o : functions.c
-	gcc -c functions.c
 
 clean:
 	rm -f *.o

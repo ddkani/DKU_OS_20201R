@@ -5,8 +5,8 @@
 
 #define MAX_STRING_LENGTH 30
 #define ASCII_SIZE	256
-int stat [MAX_STRING_LENGTH];
-int stat2 [ASCII_SIZE];
+int stat [MAX_STRING_LENGTH]; // distribution of input string length
+int stat2 [ASCII_SIZE]; // frequency of input ascii char values
 
 int main(int argc, char *argv[])
 {
@@ -42,24 +42,22 @@ int main(int argc, char *argv[])
 		if (rc == -1) break;
 
 		cptr = line;
-#ifdef _IO_
 		printf("[%3d] %s\n", line_num++, line);
-#endif
+
 		for (substr = strtok_r(cptr, sep, &brka);
 			substr;
 			substr = strtok_r(NULL, sep, &brka))
 		{
 			length = strlen(substr);
 			// update stats
-#ifdef _IO_
-			printf("length: %d\n", (int)length);
-#endif
+			printf("length (%s): %d\n", substr, (int)length);
+
 			cptr = cptr + length + 1;
 			if (length >= 30) length = 30;
 			stat[length-1]++;
 			if (*cptr == '\0') break;
-		}
-		cptr = line;
+
+		cptr = substr;
 		for (int i = 0 ; i < length ; i++) {
 			if (*cptr < 256 && *cptr > 1) {
 				stat2[*cptr]++;
@@ -75,6 +73,7 @@ int main(int argc, char *argv[])
 	sum = 0;
 	for (i = 0 ; i < 30 ; i++) {
 		sum += stat[i];
+	}
 	}
 	// print out distributions
 	printf("*** print out distributions *** \n");
@@ -95,7 +94,6 @@ int main(int argc, char *argv[])
 			stat2['P']+stat2['p'], stat2['Q']+stat2['q'],  stat2['R']+stat2['r'],  stat2['S']+stat2['s'],  stat2['T']+stat2['t'],
 			stat2['U']+stat2['u'], stat2['V']+stat2['v'],  stat2['W']+stat2['w'],  stat2['X']+stat2['x'],  stat2['Y']+stat2['y'],
 			stat2['Z']+stat2['z']);
-
 	if (line != NULL) free(line);	
 	// Close the file
 	fclose(rfile);

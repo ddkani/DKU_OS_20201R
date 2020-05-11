@@ -4,8 +4,18 @@
 #include <string.h>
 #include <pthread.h>
 
+/*
+단국대학교 컴퓨터공학과 HW2 멀티스레드 
+32187345 양해찬
+*/
+
 #define TRUE 1
 #define FALSE 0
+
+#define ASCII_SIZE	256
+#define MAX_STRING_LENGTH 30
+
+char *sep = "{}()[],;\" \n\t^"; // 문자열 나누기용 데이터
 
 typedef struct sharedobject
 {
@@ -18,6 +28,9 @@ typedef struct sharedobject
     int linenum; // 읽어준 줄 번호입니다. 1부터 시작합니다.
     int full; // 버퍼 데이터 준비 여부
     int eof; // 데이터를 다 읽었는지 여부
+
+    int* stat; // 문자열 통계 - 줄별 입력 문자열 길이
+    int* stat2; // 문자열 통계 - ASCII 문자열 별 사용 빈도
 } so_t;
 
 void *procedure_producer(void *arg)
@@ -83,11 +96,12 @@ void *procedure_consumer(void *arg)
     unsigned int self = (unsigned int)pthread_self();
     int *pthread_ret = malloc(sizeof(int)); // 스택 영역에 있다면 밀릴 수 있다.
 
-    int linenum = 0; // 현재 스레드에서 읽은 파일
+    int linenum = 0; // 현재 스레드에서 읽은 줄의 수
+    int length = 0; // 현재 스레드에서 읽은 자료 크기
 
-    char* buf = NULL;
-    ssize_t read = 0; // getdelim() 에 의해 읽힌 데이터 크기
-    size_t length = 0; // getdelim() 버퍼 크기
+    char* buf = NULL; // producer에서 받은 데이터
+    char* brka = NULL;
+    char* substr = NULL;
 
     printf("cond_%u | init\n", self);
     while (TRUE)
@@ -120,7 +134,33 @@ void *procedure_consumer(void *arg)
         }
         printf("cond_%u | 데이터 읽음 : %s\n", self, buf);
         linenum++;
+        length += strlen(buf);
+
+
+        char* cptr = buf;
+        // 받은 데이터를 문자별로 통계를 냅니다.
+        for (substr = strtok_r(cptr, sep, &brka); substr; substr = strtok_r(NULL, sep, &brka))
+        {
+            int _length = strlen(substr);
+			printf("length (%s): %d\n", substr, (int)_length);
+
+			cptr = cptr + _length + 1;
+			if (_length >= 30) _length = 30;
+			so->stat[_length-1]++; // 줄별 길이
+            printf("%d\n", *cptr);{
+			// if (*cptr == '\0') break; 
+
+		    cptr = substr;
+            for (int i = 0 ; i < _length ; i++)
+                if (*cptr < 256 && *cptr > 1) {
+                    so->stat2[*cptr]++; // 문자열 빈도
+                }
+                cptr++;
+		    }
+        }
+
         so->full = FALSE;
+        free(buf); // 동적 할당 & 복사한 데이터를 받았으므로 해제합니다.
         pthread_cond_signal(&so->cond_prod);
         pthread_mutex_unlock(&so->lock);
     }
@@ -130,8 +170,8 @@ void *procedure_consumer(void *arg)
 
 void print_usage()
 {
-    printf("word_count - DKU2020OS HW2\n\n");
-    printf("usage : word_count read_file_path consumer_count producer_count\n");
+    printf("wordcount - DKU2020OS HW2 | 31739630\n\n");
+    printf("usage : wordcount read_file_path consumer_count producer_count\n");
 }
 
 
@@ -148,24 +188,26 @@ int main(int argc, char* argv[])
         int amount_prods = atoi(argv[2]);
         int amount_conds = atoi(argv[3]);
 
-        so_t *share = malloc(sizeof(so_t));
-        memset(share, 0, sizeof(so_t)); // 객체 메모리 초기화
+        so_t *so = malloc(sizeof(so_t));
+        memset(so, 0, sizeof(so_t)); // 객체 메모리 초기화
 
-        share->rfile = rfile;
-        share->linenum = 0;
-        share->full = FALSE;
-        share->eof = FALSE;
-        pthread_mutex_init(&share->lock, NULL);
-        pthread_cond_init(&share->cond_prod, NULL);
-        pthread_cond_init(&share->cond_cons, NULL);
+        so->rfile = rfile;
+        so->linenum = 0;
+        so->full = FALSE;
+        so->eof = FALSE;
+        so->stat = malloc(sizeof(int) * MAX_STRING_LENGTH); // stat
+        so->stat2 = malloc(sizeof(int) * ASCII_SIZE); // stat2
+        pthread_mutex_init(&so->lock, NULL);
+        pthread_cond_init(&so->cond_prod, NULL);
+        pthread_cond_init(&so->cond_cons, NULL);
         
         pthread_t prod[100];
         pthread_t cons[100];
 
         for (int i = 0 ; i < amount_prods ; i++)
-                pthread_create(&prod[i], NULL, procedure_producer, share);
+                pthread_create(&prod[i], NULL, procedure_producer, so);
         for (int i = 0 ; i < amount_conds ; i++)
-                pthread_create(&cons[i], NULL, procedure_consumer, share);
+                pthread_create(&cons[i], NULL, procedure_consumer, so);
 
         int pthread_exitcode;
         int* pthread_return;
@@ -180,7 +222,37 @@ int main(int argc, char* argv[])
                 // printf("main: producer_%d joined with %d\n", i, *ret);
         }
 
-        free(share);
+        // 전체 통계를 출력합니다.
+
+        int sum = 0;
+
+        for (int i = 0 ; i < 30 ; i++) {
+		    sum += so->stat[i];
+	    }
+
+        printf("  #ch  freq \n");
+	    for (int i = 0 ; i < 30 ; i++) {
+		    int j = 0;
+		    int num_star = so->stat[i]*80/sum;
+		    printf("[%3d]: %4d \t", i+1, so->stat[i]);
+
+		    for (j = 0 ; j < num_star ; j++) printf("*");
+		    printf("\n");
+	    }
+
+        printf("       A        B        C        D        E        F        G        H        I        J        K        L        M        N        O        P        Q        R        S        T        U        V        W        X        Y        Z\n");
+        printf("%8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d %8d\n",
+			so->stat2['A']+so->stat2['a'], so->stat2['B']+so->stat2['b'],  so->stat2['C']+so->stat2['c'],  so->stat2['D']+so->stat2['d'],  so->stat2['E']+so->stat2['e'],
+			so->stat2['F']+so->stat2['f'], so->stat2['G']+so->stat2['g'],  so->stat2['H']+so->stat2['h'],  so->stat2['I']+so->stat2['i'],  so->stat2['J']+so->stat2['j'],
+			so->stat2['K']+so->stat2['k'], so->stat2['L']+so->stat2['l'],  so->stat2['M']+so->stat2['m'],  so->stat2['N']+so->stat2['n'],  so->stat2['O']+so->stat2['o'],
+			so->stat2['P']+so->stat2['p'], so->stat2['Q']+so->stat2['q'],  so->stat2['R']+so->stat2['r'],  so->stat2['S']+so->stat2['s'],  so->stat2['T']+so->stat2['t'],
+			so->stat2['U']+so->stat2['u'], so->stat2['V']+so->stat2['v'],  so->stat2['W']+so->stat2['w'],  so->stat2['X']+so->stat2['x'],  so->stat2['Y']+so->stat2['y'],
+			so->stat2['Z']+so->stat2['z']);
+
+
+        free(so->stat);
+        free(so->stat2);
+        free(so);
         fclose(rfile);
         return 0;
 }

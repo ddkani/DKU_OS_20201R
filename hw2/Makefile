@@ -1,8 +1,8 @@
-exec : myfile.o
-	gcc -o ./exec myfile.c -pthread
+wordcount : wordcount.o
+	gcc -o ./wordcount wordcount.c -pthread
 
-myfile.o : myfile.c
-	gcc -c myfile.c
+wordcount.o : wordcount.c
+	gcc -c wordcount.c
 
 
 clean:

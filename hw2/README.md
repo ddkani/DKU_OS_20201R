@@ -1,3 +1,64 @@
+# 2020_DKU_OS_HW2
+HW2: Multi-threaded word count
+
+Operating Systems & Adv. Mobile project HW2:  Multi-threaded word count (wordcount)
+
+**Student** : Haechan Yang (32187345)  
+**Period** : ~ 2020. 05. 09  
+**Submission** : 2020. 05. 11 (freedays left: 3)
+
+## Build project
+`make` to build project
+```
+make
+```
+
+`./wordcount` is created at project root.
+
+## Usage
+Use `wordcount` by input filename, producer thread count, and consumer thread count.
+```
+./wordcount README.md 1 1
+```
+
+After reach end of file, it prompts statistics of the length of each line and count of each ascii character.
+```
+  #ch  freq
+[  1]:   74     *********
+[  2]:   70     ********
+[  3]:   90     ***********
+[  4]:   65     ********
+[  5]:   36     ****
+[  6]:   78     *********
+[  7]:   55     ******
+[  8]:   32     ***
+[  9]:   55     ******
+[ 10]:    8
+[ 11]:   13     *
+[ 12]:   27     ***
+[ 13]:    6
+[ 14]:    3
+[ 15]:   11     *
+[ 16]:    0
+[ 17]:    5
+[ 18]:    4
+[ 19]:    1
+[ 20]:    2
+[ 21]:    1
+[ 22]:    3
+[ 23]:    0
+[ 24]:    0
+[ 25]:    1
+[ 26]:    0
+[ 27]:    0
+[ 28]:    0
+[ 29]:    0
+[ 30]:    2
+       A        B        C        D        E        F        G        H        I        J        K        L        M        N        O        P        Q        R        S        T        U        V        W        X        Y        Z
+     111       70      301       58      104      111       32      126      141        3       11       28      126       27       62      277        0       45      288      322       29       26       58        0       35        0
+```
+
+
 
 # 과제 요약
 
@@ -23,7 +84,6 @@ https://mobile-os.dankook.ac.kr/data/FreeBSD9-orig.tar 또는 /org/FreeBSD9-orig
 htop으로 프로세스, 스레드 실행 시간 확인.
 
 make파일을 작성하고, 프로젝트 소개, 중요한 구현의 세부 사항, 프로그램(코드)의 구조 포함
-
 
 
 # ORIGINAL CONTENTS:

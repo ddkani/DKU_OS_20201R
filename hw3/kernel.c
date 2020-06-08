@@ -21,6 +21,7 @@ const int max_allocated_disk = DISK_KB * 1024 / PAGE_SIZE;
 */
 void init_system_page_frame()
 {  
+    unsigned int count = max_allocated_disk + max_allocated_page;
     system_page_frame = (Systemframe*)malloc(sizeof(Systemframe) * MAX_PAGE_FRAME);
     
     for (int i = 0; i < MAX_PAGE_FRAME; i++)
@@ -217,9 +218,8 @@ void save_to_disk_frame(Systemframe *frame)
     allocated_page_count--;
     allocated_disk_count++;
 
-    #ifdef DEBUG
-        printf("[DEBUG] save_to_disk_frame() %d saved to disk\n", frame->id);
-    #endif
+    printf("[KERNEL] save_to_disk_frame() %d saved to disk\n", frame->id);
+
 }
 
 
@@ -245,7 +245,5 @@ void load_from_disk_frame(Systemframe *frame)
     allocated_page_count++;
     allocated_disk_count--;
 
-    #ifdef DEBUG
-        printf("[DEBUG] load_from_disk_frame() %d loaded to memory\n", frame->id);
-    #endif
+    printf("[KERNEL] load_from_disk_frame() %d loaded to memory\n", frame->id);
 }

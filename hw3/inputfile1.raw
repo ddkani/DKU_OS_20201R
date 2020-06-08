@@ -1,38 +1,3 @@
-32187345 양해찬 - 가상 메모리 시뮬레이션
-
-시뮬레이션 구현 - 과제 옵션의 ‘C’ 단계를 구현했습니다.   
-컴파일하려면, make를 실행합니다. (Makefile이 작성되어 있습니다.)
-
-▶ make: 'vm_simulator' is up to date. 오류가 발생하면 ‘make clean’ 후 재실행합니다.
-
-**모든 메모리 접근 과정을 확인하려면, config.h 파일에서 `DEBUG` 변수의 주석을 해제합니다.**
-
-─ inputfile0.raw — Demand paging 테스트용 1MB + 3bytes 
-─ inputfile1.raw — README.md 복사본
-
-```
-user26@os-lecture--1:~/hw3$ ./vm_simulator
-PID0 0x327b23c6 : written inputfile0.raw 1048579  bytes.
-PID1 0x6b8b4567 : written inputfile1.raw 9295  bytes.
-Entering interactive console. Ctrl+c to quit.
-input) pid addr_lower_hex size
-example) 3 0xcafebabe 16
-
-> 1 0x6b8b4567  32
-
-(0x6b8b4567) 0x23 [#] 0x20 [ ] 0x68 [h] 0x77 [w] 0x33 [3] 0x2c [,] 0x20 [ ] 0x56 [V]
-(0x6b8b456f) 0x69 [i] 0x72 [r] 0x74 [t] 0x75 [u] 0x61 [a] 0x6c [l] 0x20 [ ] 0x6d [m]
-(0x6b8b4577) 0x65 [e] 0x6d [m] 0x6f [o] 0x72 [r] 0x79 [y] 0x20 [ ] 0x73 [s] 0x69 [i]
-(0x6b8b457f) 0x6d [m] 0x75 [u] 0x6c [l] 0x61 [a] 0x74 [t] 0x69 [i] 0x6f [o] 0x6e [n]
-Read end!
-Read end!
-```
-
-----
-
-
-과제 원본 글
-
 # hw3, Virtual memory simulation By June 8
 
 In this programming assignment, we will simulate one of virtual memory system, paging.

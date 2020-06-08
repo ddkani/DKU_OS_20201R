@@ -13,10 +13,7 @@
 void write_file_to_memory(int pid, unsigned int va, size_t *size, char* filename)
 {
     FILE *fp = fopen(filename, "r");
-    
     char buf;
-
-    printf("%s\n", filename);
 
     size_t sz;
     while(sz = fread(&buf, 1, 1, fp) > 0)
@@ -77,10 +74,11 @@ int main(int argc, char **argv)
         {
             if (cur % 8 == 0) printf("\n(%p) ", addr + cur);
             char d = *((char*)get_pa_from_pid_va(pid, addr + cur));
+            char rep = d;
 
-            if (d == (char)10 || d == (char)0) d = (char)178;
+            if (d == 10 || d == 0 | d == 8 | d == 13) rep = (char)95;
 
-            printf("0x%x [%c] ", d, d);
+            printf("0x%02x [%c] ", d, rep);
             cur++;
         }
         printf("\nRead end!\n\n");

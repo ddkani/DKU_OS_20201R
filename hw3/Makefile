@@ -12,4 +12,3 @@ kernel.o : kernel.c
 
 clean:
 	rm -f *.o
-u

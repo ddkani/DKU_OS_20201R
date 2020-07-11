@@ -4,15 +4,12 @@
 시뮬레이션된 각 함수는 k_ 접두사를 붙여 구현합니다.
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-// 출처: https://12bme.tistory.com/215 [길은 가면, 뒤에 있다.]
 
 #include "fs.h"  // 파일시스템 관련 structure 정의
 #include "config.h" // 환경설정 정의
@@ -30,6 +27,26 @@ long OFFSET_INODE_START;
 long OFFSET_BLOCKS_START;
 
 // ****** 테스트 기능 ********
+void print_root_fstree()
+{
+    print_fstree(root);
+}
+
+
+void print_fstree(FSTREE* tree)
+{
+    printf ("list directory of %s\n", tree->name);
+
+    for (int i = 0; i < tree ->child_cnt; i++)
+    {
+        FSTREE* cur = tree->child[i];
+        printf("%s %d\n",  cur->name, get_inode_id(cur->inode)->size);
+        
+        if (cur->is_dir) print_fstree(cur);
+    }       
+}
+
+
 void print_inode(INODE* inode)
 {
     #ifdef DEBUG
@@ -47,10 +64,10 @@ void print_inode(INODE* inode)
 //BLOCKS* blocks = get_block_id(first_blocks);
 //printf("%s\n", blocks->d);
 
-DENTRY* dentry = (DENTRY*)get_block_id(first_blocks);
-print_dentry(dentry);
+    DENTRY* dentry = (DENTRY*)get_block_id(first_blocks);
+    print_dentry(dentry);
 
-printf("\n");
+    printf("\n");
 }
 
 
@@ -169,8 +186,10 @@ void init_dentry(INODE* dir_node, FSTREE* dir_tree)
         FSTREE* fstree = (FSTREE*)malloc(sizeof(FSTREE));
         fstree->name = dentry->name; // 포인터 복사.
         fstree->inode = dentry->inode; // 값 복사.
-        // 여기서 디렉터리이면 그대로 재귀함수로 작성한다.
+        // 여기서 디렉터리이면 그대로 재귀함수로 디렉터리 구조를 계속 그립니다.
         fstree->is_dir = is_inode_directory(get_inode_id(dentry->inode));
+        if (fstree->is_dir)
+            init_dentry(get_inode_id(fstree->inode), fstree);
 
         fstree->parent = dir_tree;
         dir_tree->child[dir_tree->child_cnt] = fstree;
@@ -189,10 +208,6 @@ void init_dentry(INODE* dir_node, FSTREE* dir_tree)
 */
 void init_system(const char *imgname)
 {
-    // 별도의 커스텀 이미지 포맷을 구현하지 않음.
-    printf("DKU2020OS - Simple file system implementation\n");
-    printf("Haechan Yang - 32187345\n\n");
-
     OFFSET_INODE_START = sizeof(SUPER_BLOCK);
     OFFSET_BLOCKS_START  =  OFFSET_INODE_START + (sizeof(INODE) * INODE_NUM);
 
@@ -279,7 +294,6 @@ KFILE* k_fopen(const char *filename, const char *mode)
     for (int i = 0; i < cnt; i++) free(paths[cnt]);
     free(paths);
 
-    // TODO: PEB (Process Environment Block 에 디스크립트 내용 저장)
     return f;
 }
 
